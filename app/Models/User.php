@@ -15,24 +15,18 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
-        'username',
-        'telephone',
-        'code_postal',
-        'ville',
-        'adresse',
         'email',
         'password',
-        'is_admin',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -50,10 +44,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    //Relation avec Panier
-    public function panier() { 
-        return $this->hasOne(Panier::class, 'idClient', 'id'); 
     }
 }
