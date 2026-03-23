@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use TCPDF;
 use App\Models\Commande;
 
+
 class CommandeController extends Controller
 {
     public function generateInvoice($idCommande)

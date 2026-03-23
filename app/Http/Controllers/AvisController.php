@@ -20,6 +20,8 @@ class AvisController extends Controller
                 'texteAvis' => 'nullable|string|max:255',
             ]);
 
+
+            
             // Vérification si l'utilisateur a déjà laissé un avis pour ce produit
             $existingReview = Avis::where('idProduit', $validated['idProduit'])
                                   ->where('idUsers', auth()->id())

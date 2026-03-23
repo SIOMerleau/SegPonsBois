@@ -122,3 +122,7 @@ class OffreController extends Controller
         return redirect()->route('admin.offre.index')->with('success', 'Offre supprimée avec succès.');
     }
 }
+
+
+
+
