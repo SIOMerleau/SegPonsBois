@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Essence;
+use App\Http\Requests\EssenceRequest;
+use App\Http\Controllers\Controller;
 
 class EssenceController extends Controller
 {
