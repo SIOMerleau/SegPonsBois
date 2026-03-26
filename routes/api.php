@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\EssenceController;
+use App\Http\Controllers\EssenceController;
 use App\Http\Controllers\VisiteurController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController ;
