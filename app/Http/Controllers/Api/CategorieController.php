@@ -4,45 +4,64 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Categorie;
+use App\Http\Requests\CategorieRequest;
 use Illuminate\Http\Request;
 
 class CategorieController extends Controller
 {
     public function index()
     {
-
-        return Categorie::all();
+        return response()->json(Categorie::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(CategorieRequest $request)
     {
-        Categorie::create($request->all()); 
+        // Utilise uniquement les données validées
+        $categorie = Categorie::create($request->validated()); 
+        
+        return response()->json([
+            'message' => 'Catégorie créée avec succès',
+            'data'    => $categorie
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Categorie $id)
+    public function show($id)
     {
-        return $id;
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json(['message' => 'Catégorie introuvable'], 404);
+        }
+
+        return response()->json($categorie, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Categorie $id)
+    public function update(CategorieRequest $request, $id)
     {
-        $id->update($request->all());
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json(['message' => 'Catégorie introuvable'], 404);
+        }
+
+        $categorie->update($request->validated());
+
+        return response()->json([
+            'message' => 'Catégorie mise à jour',
+            'data'    => $categorie
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Categorie $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json(['message' => 'Catégorie introuvable'], 404);
+        }
+
+        $categorie->delete();
+
+        return response()->json(['message' => 'Catégorie supprimée avec succès'], 200);
     }
 }

@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Essence extends Model
 {
-    protected $fillable = [
-       'idEssence', 
+    protected $primaryKey = 'COL 1'; 
+
+   
+    public $incrementing = false; 
+    protected $keyType = 'string';
+    public $timestamps = false;
+    protected $fillable = [ 
        'varieteEssence', 
        'typeEssence', 
        'prixEssence', 
@@ -16,7 +21,7 @@ class Essence extends Model
        'origineEssence', 
        'densiteEssence', 
        'durabiliteEssence', 
-       'commentaireEssence', 
+       'commentaireEssence',
        'photoEssence'
     ];
 

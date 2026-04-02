@@ -11,7 +11,7 @@ class AvisRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,6 +25,15 @@ class AvisRequest extends FormRequest
                 'idProduit' => 'required|integer',
                 'etoilesAvis' => 'required|integer|min:1|max:5',
                 'texteAvis' => 'nullable|string|max:255',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'etoilesAvis.min' => 'La note minimale est de 1 étoile.',
+            'etoilesAvis.max' => 'La note maximale est de 5 étoiles.',
+            'idProduit.exists' => 'Le produit sélectionné n\'existe pas.',
         ];
     }
 }

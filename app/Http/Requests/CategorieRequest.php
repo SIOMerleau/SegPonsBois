@@ -7,23 +7,29 @@ use Illuminate\Foundation\Http\FormRequest;
 class CategorieRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * TRÈS IMPORTANT : Passer à true.
      */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        // On récupère l'ID actuel pour ignorer la règle 'unique' lors d'une modification
+        $id = $this->route('id'); 
+
         return [
-             'idCategorie' => 'required|integer',
-                'libelleCategorie' => 'required|string|max:255'
+            // On ne valide généralement pas l'ID ici car il est géré par la route
+            'libelleCategorie' => 'required|string|max:255|unique:categories,libelleCategorie,' . $id . ',idCategorie'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'libelleCategorie.required' => 'Le nom de la catégorie est obligatoire.',
+            'libelleCategorie.unique'   => 'Cette catégorie existe déjà.',
         ];
     }
 }

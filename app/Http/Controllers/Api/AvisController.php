@@ -4,45 +4,59 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Avis;
+use App\Http\Requests\AvisRequest; // Import de ta Request
 use Illuminate\Http\Request;
 
 class AvisController extends Controller
 {
     public function index()
     {
-
-        return Avis::all();
+        return response()->json(Avis::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(AvisRequest $request)
     {
-        Avis::create($request->all()); 
+        // On utilise $request->validated() pour ne prendre que les données sûres
+        $avis = Avis::create($request->validated()); 
+        
+        return response()->json([
+            'message' => 'Avis enregistré avec succès',
+            'data' => $avis
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Avis $id)
+    public function show($id)
     {
-        return $id;
+        $avis = Avis::find($id);
+        if (!$avis) {
+            return response()->json(['message' => 'Avis non trouvé'], 404);
+        }
+        return response()->json($avis);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Avis $id)
+    public function update(AvisRequest $request, $id)
     {
-        $id->update($request->all());
+        $avis = Avis::find($id);
+        if (!$avis) {
+            return response()->json(['message' => 'Avis non trouvé'], 404);
+        }
+
+        $avis->update($request->validated());
+        
+        return response()->json([
+            'message' => 'Avis mis à jour',
+            'data' => $avis
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Avis $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $avis = Avis::find($id);
+        if (!$avis) {
+            return response()->json(['message' => 'Avis non trouvé'], 404);
+        }
+
+        $avis->delete();
+        return response()->json(['message' => 'Avis supprimé avec succès']);
     }
 }
