@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Offre extends Model
 {
-    //
+    protected $fillable = [
+        'idEssence',
+        'idCategorie',
+        'prixOffre',
+    ];
+
+    protected $table = 'offres';
 }

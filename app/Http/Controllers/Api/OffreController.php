@@ -4,48 +4,65 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Offre;
+use App\Http\Requests\OffreRequest; // On importe ta Request
 use Illuminate\Http\Request;
 
 class OffreController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-
-        return Offre::all();
+        // On retourne tout en JSON
+        return response()->json(Offre::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(OffreRequest $request)
     {
-        Offre::create($request->all()); 
+        // On crée l'offre avec les données validées
+        $offre = Offre::create($request->validated()); 
+        
+        return response()->json([
+            'message' => 'Offre créée avec succès !',
+            'data'    => $offre
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Offre $id)
+    public function show($id)
     {
-        return $id;
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json(['message' => 'Offre introuvable'], 404);
+        }
+
+        return response()->json($offre, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Offre $id)
+    public function update(OffreRequest $request, $id)
     {
-        $id->update($request->all());
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json(['message' => 'Offre introuvable'], 404);
+        }
+
+        $offre->update($request->validated());
+
+        return response()->json([
+            'message' => 'Offre mise à jour',
+            'data'    => $offre
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Offre $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $offre = Offre::find($id);
+
+        if (!$offre) {
+            return response()->json(['message' => 'Offre introuvable'], 404);
+        }
+
+        $offre->delete();
+
+        return response()->json(['message' => 'Offre supprimée'], 200);
     }
 }

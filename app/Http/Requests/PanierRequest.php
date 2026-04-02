@@ -6,27 +6,35 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class PanierRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        // On autorise uniquement si l'utilisateur est connecté
+        return auth()->check();
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'idClient'    => auth()->id(), // Récupère l'ID de l'user connecté
+            'datePanier'  => now()->toDateTimeString(),
+            'total_price' => 0,
+            'status'      => 0,
+        ]);
+    }
+
     public function rules(): array
     {
-        $user = auth()->user();
         return [
-            'idClient' => $user->id,
-            'datePanier' => now(),
-            'total_price' => 0,
-            'status' => 0
+            // Données envoyées par le client (Android/Web)
+            'idProduit'   => 'required|exists:produits,id',
+            'quantite'    => 'required|integer|min:1',
+
+            // Données injectées par prepareForValidation (on vérifie qu'elles sont là)
+            'idClient'    => 'required|integer',
+            'datePanier'  => 'required|date',
+            'total_price' => 'required|numeric',
+            'status'      => 'required|integer',
         ];
     }
 }

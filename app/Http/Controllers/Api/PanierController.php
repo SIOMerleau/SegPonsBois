@@ -4,48 +4,66 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Panier;
-use Illuminate\Http\Request;
+use App\Http\Requests\PanierRequest; 
 
 class PanierController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-     public function index()
+    public function index()
     {
-
-        return Panier::all();
+        // Retourne tous les paniers (souvent filtré par client dans la vraie vie)
+        return response()->json(Panier::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+   public function store(PanierRequest $request)
     {
-        Panier::create($request->all()); 
+        // On récupère TOUTES les données (idClient, datePanier, idProduit, etc.)
+        // qui ont été validées et préparées dans la Request.
+        $panier = Panier::create($request->validated());
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Produit ajouté au panier',
+            'data'    => $panier
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Panier $id)
+    public function show($id)
     {
-        return $id;
+        $panier = Panier::find($id);
+
+        if (!$panier) {
+            return response()->json(['message' => 'Panier introuvable'], 404);
+        }
+
+        return response()->json($panier, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Panier $id)
+    public function update(PanierRequest $request, $id)
     {
-        $id->update($request->all());
+        $panier = Panier::find($id);
+        
+        if (!$panier) {
+            return response()->json(['message' => 'Panier introuvable'], 404);
+        }
+
+        $panier->update($request->validated());
+
+        return response()->json([
+            'message' => 'Panier mis à jour',
+            'data'    => $panier
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Panier $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $panier = Panier::find($id);
+
+        if (!$panier) {
+            return response()->json(['message' => 'Panier introuvable'], 404);
+        }
+
+        $panier->delete();
+
+        return response()->json(['message' => 'Produit retiré du panier'], 200);
     }
 }

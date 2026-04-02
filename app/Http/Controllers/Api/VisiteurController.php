@@ -4,45 +4,64 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Visiteur;
+use App\Http\Requests\VisiteurRequest; // On lie ta Request
 use Illuminate\Http\Request;
 
 class VisiteurController extends Controller
 {
     public function index()
     {
-
-        return Visiteur::all();
+        return response()->json(Visiteur::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(VisiteurRequest $request)
     {
-        Visiteur::create($request->all()); 
+        // On enregistre uniquement les données validées
+        $visiteur = Visiteur::create($request->validated()); 
+
+        return response()->json([
+            'message' => 'Message envoyé avec succès !',
+            'data'    => $visiteur
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Visiteur $id)
+    public function show($id)
     {
-        return $id;
+        $visiteur = Visiteur::find($id);
+
+        if (!$visiteur) {
+            return response()->json(['message' => 'Visiteur introuvable'], 404);
+        }
+
+        return response()->json($visiteur, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Visiteur $id)
+    public function update(VisiteurRequest $request, $id)
     {
-        $id->update($request->all());
+        $visiteur = Visiteur::find($id);
+
+        if (!$visiteur) {
+            return response()->json(['message' => 'Visiteur introuvable'], 404);
+        }
+
+        $visiteur->update($request->validated());
+
+        return response()->json([
+            'message' => 'Informations visiteur mises à jour',
+            'data'    => $visiteur
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Visiteur $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $visiteur = Visiteur::find($id);
+
+        if (!$visiteur) {
+            return response()->json(['message' => 'Visiteur introuvable'], 404);
+        }
+
+        $visiteur->delete();
+
+        return response()->json(['message' => 'Visiteur supprimé'], 200);
     }
 }

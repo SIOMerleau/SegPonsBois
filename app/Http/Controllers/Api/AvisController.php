@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Avis;
-use App\Http\Requests\AvisRequest; // Import de ta Request
-use Illuminate\Http\Request;
+use App\Http\Requests\AvisRequest; 
 
 class AvisController extends Controller
 {

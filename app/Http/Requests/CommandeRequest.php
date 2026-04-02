@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class CommandeRequest extends FormRequest
 {
     /**
-     * Change à true pour autoriser la création de commande.
+     * On autorise la requête.
      */
     public function authorize(): bool
     {
@@ -15,37 +15,39 @@ class CommandeRequest extends FormRequest
     }
 
     /**
-     * Définition des règles de validation pour le formulaire de commande.
+     * Les règles de validation.
      */
     public function rules(): array
     {
         return [
-            // Validation de la commande principale
-            'reference'     => 'required|string|unique:commandes,reference',
+            // 1. Validation de la table Commande
+            'reference'     => 'required|string|unique:commandes,reference,' . $this->route('id'),
             'date_commande' => 'required|date',
             'client_id'     => 'required|exists:clients,id',
 
-            // Validation des listes associées (Tableaux)
-            'produits'      => 'required|array|min:1',
+            // 2. Validation du tableau de produits (Crucial !)
+            'produits'      => 'required|array|min:1', 
             'produits.*.id' => 'required|exists:produits,id',
             'produits.*.qte'=> 'required|integer|min:1',
 
+            // 3. Validation optionnelle (Pièces ou Offres)
             'pieces'        => 'nullable|array',
             'pieces.*.id'   => 'required_with:pieces|exists:pieces,id',
-
             'offres'        => 'nullable|array',
         ];
     }
 
     /**
-     * Messages d'erreur personnalisés (Optionnel mais recommandé)
+     * Messages d'erreur en français pour ton API.
      */
     public function messages(): array
     {
         return [
-            'produits.required' => 'Une commande doit contenir au moins un produit.',
-            'produits.*.id.exists' => 'Un des produits sélectionnés n\'existe pas.',
-            'client_id.exists' => 'Le client sélectionné est invalide.',
+            'reference.unique'     => 'Cette référence de commande existe déjà.',
+            'client_id.exists'     => 'Le client sélectionné n\'existe pas.',
+            'produits.required'    => 'Vous devez ajouter au moins un produit à la commande.',
+            'produits.*.id.exists' => 'Un des produits sélectionnés est invalide.',
+            'produits.*.qte.min'   => 'La quantité d\'un produit ne peut pas être inférieure à 1.',
         ];
     }
 }

@@ -4,48 +4,80 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest; // On importe ta Request
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-     public function index()
+    public function index()
     {
-
-        return User::all();
+        return response()->json(User::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        User::create($request->all()); 
+        $data = $request->validated();
+
+        // Sécurité : On hache le mot de passe avant l'enregistrement
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user = User::create($data);
+
+        return response()->json([
+            'message' => 'Utilisateur créé avec succès',
+            'data'    => $user
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $id)
+    public function show($id)
     {
-        return $id;
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur introuvable'], 404);
+        }
+
+        return response()->json($user, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $id)
+    public function update(UserRequest $request, $id)
     {
-        $id->update($request->all());
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur introuvable'], 404);
+        }
+
+        $data = $request->validated();
+
+        // Si un nouveau mot de passe est fourni, on le hache
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            // Sinon on retire le champ pour ne pas écraser le mot de passe actuel par du vide
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Profil mis à jour',
+            'data'    => $user
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur introuvable'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Compte supprimé'], 200);
     }
 }

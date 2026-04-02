@@ -6,28 +6,29 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class OffreRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'nomOffre' => 'required|string|max:255',
-            'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after:date_debut',
+            'nomOffre'       => 'required|string|max:255',
+            'date_debut'     => 'required|date',
+            'date_fin'       => 'required|date|after:date_debut',
             'idProd_Produit' => 'required|exists:produit,idProd',
-            'prixOffre' => 'required|numeric|min:0',
-            'quantiteOf' => 'required|integer|min:1',
+            'prixOffre'      => 'required|numeric|min:0',
+            'quantiteOf'     => 'required|integer|min:1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'date_fin.after'        => 'La date de fin doit être après la date de début.',
+            'idProd_Produit.exists' => 'Le produit sélectionné n\'existe pas.',
+            'prixOffre.min'         => 'Le prix ne peut pas être négatif.',
         ];
     }
 }

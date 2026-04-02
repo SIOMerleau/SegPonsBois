@@ -4,48 +4,80 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Piece;
+use App\Http\Requests\PieceRequest; // On lie ta Request
 use Illuminate\Http\Request;
 
 class PieceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-
-        return Piece::all();
+        return response()->json(Piece::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(PieceRequest $request)
     {
-        Piece::create($request->all()); 
+        // On récupère les données validées (et préparées)
+        $data = $request->validated();
+
+        // Gestion de l'image si présente (Stockage local recommandé)
+        if ($request->hasFile('photoPiece')) {
+            $path = $request->file('photoPiece')->store('pieces', 'public');
+            $data['photoPiece'] = $path;
+        }
+
+        $piece = Piece::create($data);
+
+        return response()->json([
+            'message' => 'Pièce créée avec succès',
+            'data'    => $piece
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Piece $id)
+    
+    public function update(PieceRequest $request, $id)
     {
-        return $id;
+        $piece = Piece::find($id);
+
+        if (!$piece) {
+            return response()->json(['message' => 'Pièce introuvable'], 404);
+        }
+
+        $data = $request->validated();
+
+        // Mise à jour de l'image si un nouveau fichier est envoyé
+        if ($request->hasFile('photoPiece')) {
+            $path = $request->file('photoPiece')->store('pieces', 'public');
+            $data['photoPiece'] = $path;
+        }
+
+        $piece->update($data);
+
+        return response()->json([
+            'message' => 'Pièce mise à jour',
+            'data'    => $piece
+        ], 200);
+    }
+    public function show($id)
+    {
+        $piece = Piece::find($id);
+
+        if (!$piece) {
+            return response()->json(['message' => 'Pièce introuvable'], 404);
+        }
+
+        return response()->json($piece, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Piece $id)
+    public function destroy($id)
     {
-        $id->update($request->all());
-    }
+        $piece = Piece::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Piece $id)
-    {
-        $id->delete();
+        if (!$piece) {
+            return response()->json(['message' => 'Pièce introuvable'], 404);
+        }
+
+        $piece->delete();
+
+        return response()->json(['message' => 'Pièce supprimée'], 200);
     }
 }

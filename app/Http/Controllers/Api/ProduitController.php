@@ -4,48 +4,91 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Produit;
+use App\Http\Requests\ProduitRequest; // Import de ta Request
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProduitController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-     public function index()
+    public function index()
     {
-
-        return Produit::all();
+        // On peut charger la catégorie en même temps pour l'API
+        return response()->json(Produit::with('categorie')->get(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(ProduitRequest $request)
     {
-        Produit::create($request->all()); 
+        $data = $request->validated();
+
+        // Gestion de l'image
+        if ($request->hasFile('photoProduit')) {
+            $path = $request->file('photoProduit')->store('produits', 'public');
+            $data['photoProduit'] = $path;
+        }
+
+        $produit = Produit::create($data);
+
+        return response()->json([
+            'message' => 'Produit créé avec succès',
+            'data'    => $produit
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Produit $id)
+    public function show($id)
     {
-        return $id;
+        $produit = Produit::find($id);
+
+        if (!$produit) {
+            return response()->json(['message' => 'Produit introuvable'], 404);
+        }
+
+        return response()->json($produit, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Produit $id)
+    public function update(ProduitRequest $request, $id)
     {
-        $id->update($request->all());
+        $produit = Produit::find($id);
+
+        if (!$produit) {
+            return response()->json(['message' => 'Produit introuvable'], 404);
+        }
+
+        $data = $request->validated();
+
+        // Si une nouvelle photo est envoyée
+        if ($request->hasFile('photoProduit')) {
+            // Optionnel : supprimer l'ancienne photo du disque
+            if ($produit->photoProduit) {
+                Storage::disk('public')->delete($produit->photoProduit);
+            }
+            
+            $path = $request->file('photoProduit')->store('produits', 'public');
+            $data['photoProduit'] = $path;
+        }
+
+        $produit->update($data);
+
+        return response()->json([
+            'message' => 'Produit mis à jour',
+            'data'    => $produit
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produit $id)
+    public function destroy($id)
     {
-        $id->delete();
+        $produit = Produit::find($id);
+
+        if (!$produit) {
+            return response()->json(['message' => 'Produit introuvable'], 404);
+        }
+
+        // Suppression de l'image associée avant de supprimer le produit
+        if ($produit->photoProduit) {
+            Storage::disk('public')->delete($produit->photoProduit);
+        }
+
+        $produit->delete();
+
+        return response()->json(['message' => 'Produit supprimé'], 200);
     }
 }
