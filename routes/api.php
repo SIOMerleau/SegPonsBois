@@ -10,7 +10,8 @@ use App\Http\Controllers\Api\OffreController;
 use App\Http\Controllers\Api\PanierController;
 use App\Http\Controllers\Api\ProduitController;
 use App\Http\Controllers\Api\PieceController;
-
+use App\Http\Controllers\Api\VisiteurController;
+use App\Http\Controllers\Api\UserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -63,3 +64,15 @@ Route::post('/pieces', [PieceController::class, 'store']);
 Route::get('/pieces/{id}', [PieceController::class, 'show']);
 Route::put('/pieces/{id}', [PieceController::class, 'update']);
 Route::delete('/pieces/{id}', [PieceController::class, 'destroy']);
+
+Route::get('/visiteurs', [VisiteurController::class, 'index']);
+Route::post('/visiteurs', [VisiteurController::class, 'store']);
+Route::get('/visiteurs/{id}', [VisiteurController::class, 'show']);
+Route::put('/visiteurs/{id}', [VisiteurController::class, 'update']);
+Route::delete('/visiteurs/{id}', [VisiteurController::class, 'destroy']);
+
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+Route::put('/users/{id}', [UserController::class, 'update']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
